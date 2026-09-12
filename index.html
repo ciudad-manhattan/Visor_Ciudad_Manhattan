@@ -144,40 +144,72 @@ HTML
       user-select: none;
     }
 
-    /* CAPA DE LEYENDA */
+    /* CAPA DE LEYENDA (MÁS PEQUEÑA Y COMPACTA) */
     .legend-box {
       position: absolute;
-      bottom: 25px;
-      right: 20px;
+      bottom: 20px;
+      right: 15px;
       z-index: 1000;
       background: rgba(15, 23, 42, 0.95);
       backdrop-filter: blur(12px);
       color: #e2e8f0;
-      padding: 20px;
-      border-radius: 14px;
-      width: 260px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      padding: 8px 12px;
+      border-radius: 10px;
+      width: 190px;
+      box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.5);
       border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: all 0.3s ease;
     }
 
     .legend-header {
-      font-weight: 800;
+      font-weight: 700;
       color: #f8fafc;
-      margin-bottom: 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-      padding-bottom: 10px;
-      font-size: 15px;
-      letter-spacing: 1px;
+      font-size: 11px;
+      letter-spacing: 0.8px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .legend-header-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toggle-icon {
+      font-size: 11px;
+      color: #facc15;
+      transition: transform 0.3s ease;
+    }
+
+    .legend-content {
+      margin-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      padding-top: 8px;
+      display: block;
+    }
+
+    .legend-box.collapsed .legend-content {
+      display: none;
+    }
+
+    .legend-box.collapsed {
+      padding: 7px 10px;
+      width: auto;
+    }
+
+    .legend-box.collapsed .toggle-icon {
+      transform: rotate(180deg);
     }
 
     .legend-row {
       display: flex;
       align-items: center;
-      margin-bottom: 12px;
-      font-size: 13px;
+      margin-bottom: 6px;
+      font-size: 10.5px;
       font-weight: 600;
       color: #cbd5e1;
     }
@@ -187,10 +219,10 @@ HTML
     }
 
     .color-box {
-      width: 18px;
-      height: 18px;
-      margin-right: 12px;
-      border-radius: 4px;
+      width: 12px;
+      height: 12px;
+      margin-right: 8px;
+      border-radius: 3px;
       flex-shrink: 0;
     }
 
@@ -275,6 +307,10 @@ HTML
     @media (max-width: 600px) {
       .stats-container { display: none; }
       .info-panel { width: calc(100% - 40px); }
+      .legend-box {
+        bottom: 10px;
+        right: 10px;
+      }
     }
   </style>
 </head>
@@ -296,10 +332,6 @@ HTML
         <div class="stat-dot" style="background: #2b8cbe;"></div>
         <span>Disponibles: <strong id="cnt-disponibles">--</strong></span>
       </div>
-      <div class="stat-badge">
-        <div class="stat-dot" style="background: #ffb6c1;"></div>
-        <span>Vendidos: <strong id="cnt-vendidos">--</strong></span>
-      </div>
     </div>
   </header>
 
@@ -314,25 +346,31 @@ HTML
     <div id="panel-content"></div>
   </div>
 
-  <div class="legend-box">
-    <div class="legend-header">
-      <span>LEYENDA</span>
-      <i class="fa-solid fa-layer-group" style="color: #facc15;"></i>
+  <!-- Leyenda minimizada por defecto y de tamaño compacto -->
+  <div class="legend-box collapsed" id="legendBox">
+    <div class="legend-header" onclick="toggleLeyenda()">
+      <div class="legend-header-left">
+        <i class="fa-solid fa-layer-group" style="color: #facc15; font-size: 10px;"></i>
+        <span>LEYENDA</span>
+      </div>
+      <i class="fa-solid fa-chevron-down toggle-icon" id="toggleIcon"></i>
     </div>
     
-    <div class="legend-row">
-      <div class="color-box" style="border: 2.5px solid #ffd700; background: transparent;"></div>
-      <span>CIUDAD_MANHATTAN_F</span>
-    </div>
+    <div class="legend-content">
+      <div class="legend-row">
+        <div class="color-box" style="border: 2px solid #ffd700; background: transparent;"></div>
+        <span>CIUDAD_MANHATTAN_F</span>
+      </div>
 
-    <div class="legend-row">
-      <div class="color-box" style="background: #2b8cbe; border: 1px solid #ffffff;"></div>
-      <span>DISPONIBLE</span>
-    </div>
+      <div class="legend-row">
+        <div class="color-box" style="background: #2b8cbe; border: 1px solid #ffffff;"></div>
+        <span>DISPONIBLE</span>
+      </div>
 
-    <div class="legend-row">
-      <div class="color-box" style="border: 2px solid #ffb6c1; background: rgba(255, 192, 203, 0.15);"></div>
-      <span>VENDIDO</span>
+      <div class="legend-row">
+        <div class="color-box" style="border: 1.5px solid #ffb6c1; background: rgba(255, 192, 203, 0.15);"></div>
+        <span>VENDIDO</span>
+      </div>
     </div>
   </div>
 
@@ -373,6 +411,11 @@ HTML
 
     const grupoCapas = L.featureGroup().addTo(map);
     const grupoEtiquetas = L.layerGroup().addTo(map);
+
+    function toggleLeyenda() {
+      const box = document.getElementById('legendBox');
+      box.classList.toggle('collapsed');
+    }
 
     function mostrarError(msg) {
       const b = document.getElementById('error-banner');
@@ -488,7 +531,7 @@ HTML
         }
       });
 
-    // 2. VENDIDOS.geojson (Muestra "VENDIDO" al hacer clic)
+    // 2. VENDIDOS.geojson
     cargarGeoJSON([
       'VENDIDOS.geojson',
       'vendidos.geojson',
@@ -497,7 +540,6 @@ HTML
     ])
       .then(data => {
         if (data) {
-          if (data.features) document.getElementById('cnt-vendidos').innerText = data.features.length;
           const capa = L.geoJSON(data, { 
             style: estiloVendidos, 
             onEachFeature: function(feature, layer) {
